@@ -28,7 +28,7 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 ### Format
 
 ```
-<type>(<scope>): <description>
+<type>: <description>
 ```
 
 ### Types
@@ -42,15 +42,17 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
 | `test`     | Adding or updating tests                         |
 | `chore`    | Maintenance tasks (deps, config, build, etc.)    |
+| `ui`       | UI/layout changes                                |
 
 ### Examples
 
 ```
-feat(auth): add google oauth provider
-fix(db): resolve unique constraint on customer email
-style(ui): update primary button hover state
-chore(deps): bump next.js to v15
-docs(api): document the new invoice endpoint
-refactor(utils): simplify date formatting logic
-test(orders): add unit tests for order validation
+feat: add google oauth provider
+fix: resolve unique constraint on customer email
+style: update primary button hover state
+chore: bump next.js to v15
+docs: document the new invoice endpoint
+refactor: simplify date formatting logic
+test: add unit tests for order validation
+ui: rework sidebar navigation
 ```

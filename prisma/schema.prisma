@@ -18,8 +18,98 @@ model User {
 
   sessions Session[]
   accounts Account[]
+  contacts Contact[]
+  tasks    Task[]
+  invoices Invoice[]
 
   @@map("user")
+}
+
+enum ContactStatus {
+  LEAD
+  PROSPECT
+  CLIENT
+  INACTIVE
+
+  @@map("contact_status")
+}
+
+model Contact {
+  id        String        @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  company   String?
+  notes     String?
+  status    ContactStatus @default(LEAD)
+  userId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks    Task[]
+  invoices Invoice[]
+
+  @@index([userId])
+  @@map("contact")
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+
+  @@map("task_status")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  dueDate     DateTime?
+  contactId   String
+  userId      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([userId])
+  @@map("task")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+
+  @@map("invoice_status")
+}
+
+model Invoice {
+  id        String        @id @default(cuid())
+  number    String
+  amount    Decimal       @db.Decimal(10, 2)
+  status    InvoiceStatus @default(DRAFT)
+  dueDate   DateTime?
+  paidAt    DateTime?
+  contactId String
+  userId    String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([userId])
+  @@map("invoice")
 }
 
 model Session {

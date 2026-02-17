@@ -20,7 +20,7 @@ export async function RecentContacts() {
 
   if (contacts.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed p-8">
+      <div className="flex flex-1 items-center justify-center border border-dashed p-8">
         <p className="text-muted-foreground text-sm">
           Aucun contact pour le moment. Créez votre premier contact !
         </p>
@@ -29,7 +29,7 @@ export async function RecentContacts() {
   }
 
   return (
-    <div className="rounded-xl border">
+    <div className="border">
       <div className="p-4 pb-2">
         <h2 className="font-semibold">Derniers contacts</h2>
         <p className="text-muted-foreground text-sm">
@@ -57,7 +57,7 @@ export async function RecentContacts() {
               </p>
             </div>
             <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[contact.status]}`}
+              className={`text-xs font-medium px-2 py-0.5 rounded-none ${statusColors[contact.status]}`}
             >
               {statusLabels[contact.status]}
             </span>

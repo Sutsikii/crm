@@ -1,19 +1,6 @@
 import { getRecentContacts } from "@/app/actions/contacts"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-
-const statusLabels: Record<string, string> = {
-  LEAD: "Lead",
-  PROSPECT: "Prospect",
-  CLIENT: "Client",
-  INACTIVE: "Inactif",
-}
-
-const statusColors: Record<string, string> = {
-  LEAD: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
-  PROSPECT: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
-  CLIENT: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
-  INACTIVE: "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300",
-}
+import { ContactStatusBadge } from "@/components/contact-status-badge"
 
 export async function RecentContacts() {
   const contacts = await getRecentContacts()
@@ -56,11 +43,7 @@ export async function RecentContacts() {
                 {contact.email ?? contact.company ?? "—"}
               </p>
             </div>
-            <span
-              className={`text-xs font-medium px-2 py-0.5 rounded-none ${statusColors[contact.status]}`}
-            >
-              {statusLabels[contact.status]}
-            </span>
+            <ContactStatusBadge status={contact.status} />
           </div>
         ))}
       </div>

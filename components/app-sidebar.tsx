@@ -30,13 +30,13 @@ const data = {
   navMain: [
     {
       title: "Contacts",
-      url: "#",
+      url: "/contacts",
       icon: Users,
       isActive: true,
       items: [
         {
           title: "Tous les contacts",
-          url: "#",
+          url: "/contacts",
         },
         {
           title: "Entreprises",
@@ -109,7 +109,7 @@ const data = {
   raccourcis: [
     {
       name: "Tableau de bord",
-      url: "#",
+      url: "/",
       icon: LayoutDashboard,
     },
     {

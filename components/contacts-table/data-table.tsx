@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import {
-  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -29,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { EditContactSheet } from "@/components/edit-contact-sheet"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { columns, type Contact } from "./columns"
 
@@ -38,11 +37,10 @@ interface DataTableProps {
 }
 
 export function DataTable({ data }: DataTableProps) {
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState("")
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [editContact, setEditContact] = useState<Contact | null>(null)
-  const [editOpen, setEditOpen] = useState(false)
 
   const handleStatusFilter = useCallback((value: string) => {
     setColumnFilters(value !== "ALL" ? [{ id: "status", value }] : [])
@@ -78,8 +76,7 @@ export function DataTable({ data }: DataTableProps) {
   })
 
   function handleRowClick(contact: Contact) {
-    setEditContact(contact)
-    setEditOpen(true)
+    router.push(`/contacts/${contact.id}`)
   }
 
   const totalRows = table.getFilteredRowModel().rows.length
@@ -183,12 +180,6 @@ export function DataTable({ data }: DataTableProps) {
           </Button>
         </div>
       </div>
-
-      <EditContactSheet
-        contact={editContact}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-      />
     </div>
   )
 }

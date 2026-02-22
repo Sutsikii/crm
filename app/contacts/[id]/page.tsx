@@ -33,13 +33,6 @@ export default async function ContactPage({ params }: ContactPageProps) {
     ...contact,
     createdAt: contact.createdAt.toISOString(),
     updatedAt: contact.updatedAt.toISOString(),
-    events: contact.events.map((e) => ({
-      ...e,
-      createdAt: e.createdAt.toISOString(),
-      fromStatus: e.fromStatus ?? null,
-      toStatus: e.toStatus ?? null,
-    })),
-    hasMoreEvents: contact.hasMoreEvents,
   }
 
   return (

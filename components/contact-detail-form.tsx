@@ -55,6 +55,7 @@ interface ContactEvent {
   fromStatus: string | null
   toStatus: string | null
   createdAt: string
+  userName: string
 }
 
 interface Contact {
@@ -91,8 +92,7 @@ const eventIconClass: Record<ContactEvent["type"], string> = {
   CREATED: "border-green-200 bg-green-50 text-green-600",
 }
 
-const eventLabel: Record<ContactEvent["type"], string> = {
-  NOTE: "Note",
+const eventLabel: Partial<Record<ContactEvent["type"], string>> = {
   STATUS_CHANGE: "Changement de statut",
   CREATED: "Contact créé",
 }
@@ -141,7 +141,7 @@ function TimelineItem({
       <div className="pb-5 min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-xs font-medium text-muted-foreground">
-            {eventLabel[event.type]}
+            {event.type === "NOTE" ? event.userName : eventLabel[event.type]}
           </span>
           <span className="shrink-0 text-xs text-muted-foreground/70">
             {formatRelativeTime(event.createdAt)}

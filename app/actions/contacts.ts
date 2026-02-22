@@ -76,6 +76,7 @@ export async function getContactById(id: string) {
       events: {
         orderBy: { createdAt: "desc" },
         take: 6,
+        include: { user: { select: { name: true } } },
       },
     },
   })
@@ -84,7 +85,15 @@ export async function getContactById(id: string) {
 
   return {
     ...contact,
-    events: contact.events.slice(0, 5),
+    events: contact.events.slice(0, 5).map((e) => ({
+      id: e.id,
+      type: e.type,
+      content: e.content ?? null,
+      fromStatus: e.fromStatus ?? null,
+      toStatus: e.toStatus ?? null,
+      createdAt: e.createdAt.toISOString(),
+      userName: e.user.name,
+    })),
     hasMoreEvents: contact.events.length === 6,
   }
 }
@@ -103,6 +112,7 @@ export async function loadMoreContactEvents(contactId: string, skip: number) {
     orderBy: { createdAt: "desc" },
     skip,
     take: 6,
+    include: { user: { select: { name: true } } },
   })
 
   return {
@@ -113,6 +123,7 @@ export async function loadMoreContactEvents(contactId: string, skip: number) {
       fromStatus: e.fromStatus ?? null,
       toStatus: e.toStatus ?? null,
       createdAt: e.createdAt.toISOString(),
+      userName: e.user.name,
     })),
     hasMore: events.length === 6,
   }

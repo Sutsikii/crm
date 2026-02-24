@@ -8,8 +8,8 @@ import { ContactStatusBadge } from "@/components/contact-status-badge"
 
 export type Contact = {
   id: string
-  firstName: string
-  lastName: string
+  firstName: string | null
+  lastName: string | null
   email: string | null
   phone: string | null
   company: string | null
@@ -20,22 +20,27 @@ export type Contact = {
 export const columns: ColumnDef<Contact>[] = [
   {
     id: "name",
-    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+    accessorFn: (row) =>
+      row.firstName && row.lastName
+        ? `${row.firstName} ${row.lastName}`
+        : (row.company ?? ""),
     header: "Contact",
     cell: ({ row }) => {
       const contact = row.original
+      const hasName = contact.firstName && contact.lastName
+      const initials = hasName
+        ? `${contact.firstName![0]}${contact.lastName![0]}`.toUpperCase()
+        : (contact.company?.[0] ?? "?").toUpperCase()
+      const displayName = hasName
+        ? `${contact.firstName} ${contact.lastName}`
+        : contact.company ?? "—"
       return (
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarFallback className="text-xs">
-              {contact.firstName[0]}
-              {contact.lastName[0]}
-            </AvatarFallback>
+            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="text-sm font-medium truncate">
-              {contact.firstName} {contact.lastName}
-            </p>
+            <p className="text-sm font-medium truncate">{displayName}</p>
             <p className="text-muted-foreground text-xs truncate">
               {contact.email ?? "—"}
             </p>

@@ -27,10 +27,19 @@ export function CreateContactSheet() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError("")
-    setLoading(true)
 
+    const formData = new FormData(e.currentTarget)
+    const firstName = (formData.get("firstName") as string).trim()
+    const lastName = (formData.get("lastName") as string).trim()
+    const company = (formData.get("company") as string).trim()
+
+    if ((!firstName || !lastName) && !company) {
+      setError("Renseignez un prénom/nom ou une entreprise")
+      return
+    }
+
+    setLoading(true)
     try {
-      const formData = new FormData(e.currentTarget)
       await createContact(formData)
       setOpen(false)
     } catch (err) {
@@ -57,27 +66,31 @@ export function CreateContactSheet() {
         </SheetHeader>
         <form onSubmit={handleSubmit} className="px-4 space-y-6">
           <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="company">Entreprise</FieldLabel>
+              <Input id="company" name="company" />
+            </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field>
                 <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
-                <Input id="firstName" name="firstName" required />
+                <Input id="firstName" name="firstName" />
               </Field>
               <Field>
                 <FieldLabel htmlFor="lastName">Nom</FieldLabel>
-                <Input id="lastName" name="lastName" required />
+                <Input id="lastName" name="lastName" />
               </Field>
             </div>
             <Field>
-              <FieldLabel htmlFor="email">E-mail</FieldLabel>
-              <Input id="email" name="email" type="email" />
+              <FieldLabel htmlFor="email">E-mail *</FieldLabel>
+              <Input id="email" name="email" type="email" required />
             </Field>
             <Field>
               <FieldLabel htmlFor="phone">Téléphone</FieldLabel>
               <Input id="phone" name="phone" type="tel" />
             </Field>
             <Field>
-              <FieldLabel htmlFor="company">Entreprise</FieldLabel>
-              <Input id="company" name="company" />
+              <FieldLabel htmlFor="address">Adresse</FieldLabel>
+              <Input id="address" name="address" />
             </Field>
           </FieldGroup>
           {error && <p className="text-sm text-destructive">{error}</p>}

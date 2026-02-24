@@ -6,6 +6,25 @@ import { auth } from "@/lib/auth"
 import prisma from "@/lib/prisma"
 import type { ContactStatus } from "@/app/generated/prisma/enums"
 
+function parseContactFields(formData: FormData) {
+  const firstName = (formData.get("firstName") as string) || null
+  const lastName = (formData.get("lastName") as string) || null
+  const email = (formData.get("email") as string) || null
+  const phone = (formData.get("phone") as string) || null
+  const company = (formData.get("company") as string) || null
+  const address = (formData.get("address") as string) || null
+
+  if (!email) {
+    throw new Error("L'e-mail est requis")
+  }
+
+  if ((!firstName || !lastName) && !company) {
+    throw new Error("Veuillez renseigner un nom/prénom ou une entreprise")
+  }
+
+  return { firstName, lastName, email, phone, company, address }
+}
+
 export async function createContact(formData: FormData) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -15,24 +34,12 @@ export async function createContact(formData: FormData) {
     throw new Error("Non autorisé")
   }
 
-  const firstName = formData.get("firstName") as string
-  const lastName = formData.get("lastName") as string
-  const email = (formData.get("email") as string) || null
-  const phone = (formData.get("phone") as string) || null
-  const company = (formData.get("company") as string) || null
-
-  if (!firstName || !lastName) {
-    throw new Error("Le prénom et le nom sont requis")
-  }
+  const fields = parseContactFields(formData)
 
   await prisma.$transaction(async (tx) => {
     const contact = await tx.contact.create({
       data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        company,
+        ...fields,
         userId: session.user.id,
       },
     })
@@ -158,21 +165,13 @@ export async function updateContact(id: string, formData: FormData) {
     throw new Error("Contact introuvable")
   }
 
-  const firstName = formData.get("firstName") as string
-  const lastName = formData.get("lastName") as string
-  const email = (formData.get("email") as string) || null
-  const phone = (formData.get("phone") as string) || null
-  const company = (formData.get("company") as string) || null
+  const fields = parseContactFields(formData)
   const status = formData.get("status") as ContactStatus
-
-  if (!firstName || !lastName) {
-    throw new Error("Le prénom et le nom sont requis")
-  }
 
   await prisma.$transaction(async (tx) => {
     await tx.contact.update({
       where: { id },
-      data: { firstName, lastName, email, phone, company, status },
+      data: { ...fields, status },
     })
 
     if (status !== contact.status) {

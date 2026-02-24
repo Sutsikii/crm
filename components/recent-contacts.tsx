@@ -31,13 +31,16 @@ export async function RecentContacts() {
           >
             <Avatar className="size-9">
               <AvatarFallback className="text-xs">
-                {contact.firstName[0]}
-                {contact.lastName[0]}
+                {contact.firstName && contact.lastName
+                  ? `${contact.firstName[0]}${contact.lastName[0]}`.toUpperCase()
+                  : (contact.company?.[0] ?? "?").toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
-                {contact.firstName} {contact.lastName}
+                {contact.firstName && contact.lastName
+                  ? `${contact.firstName} ${contact.lastName}`
+                  : contact.company ?? "—"}
               </p>
               <p className="text-muted-foreground text-xs truncate">
                 {contact.email ?? contact.company ?? "—"}

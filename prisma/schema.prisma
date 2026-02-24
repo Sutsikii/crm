@@ -37,11 +37,12 @@ enum ContactStatus {
 
 model Contact {
   id        String        @id @default(cuid())
-  firstName String
-  lastName  String
+  firstName String?
+  lastName  String?
   email     String?
   phone     String?
   company   String?
+  address   String?
   notes     String?
   status    ContactStatus @default(LEAD)
   userId    String

@@ -60,11 +60,12 @@ interface ContactEvent {
 
 interface Contact {
   id: string
-  firstName: string
-  lastName: string
+  firstName: string | null
+  lastName: string | null
   email: string | null
   phone: string | null
   company: string | null
+  address: string | null
   status: string
   createdAt: string
   updatedAt: string
@@ -200,9 +201,20 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
     e.preventDefault()
     setError("")
     setSuccess(false)
+
+    const formData = new FormData(e.currentTarget)
+    const firstName = (formData.get("firstName") as string).trim()
+    const lastName = (formData.get("lastName") as string).trim()
+    const company = (formData.get("company") as string).trim()
+
+    if ((!firstName || !lastName) && !company) {
+      setError("Renseignez un prénom/nom ou une entreprise")
+      return
+    }
+
     setLoading(true)
     try {
-      await updateContact(contact.id, new FormData(e.currentTarget))
+      await updateContact(contact.id, formData)
       setSuccess(true)
       router.refresh()
     } catch (err) {
@@ -248,8 +260,9 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
     }
   }
 
-  const initials =
-    `${contact.firstName[0]}${contact.lastName[0]}`.toUpperCase()
+  const initials = contact.firstName && contact.lastName
+    ? `${contact.firstName[0]}${contact.lastName[0]}`.toUpperCase()
+    : (contact.company?.[0] ?? "?").toUpperCase()
   const avatarClass =
     avatarColors[contact.status] ?? "bg-muted text-muted-foreground"
 
@@ -272,7 +285,9 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-semibold leading-tight">
-              {contact.firstName} {contact.lastName}
+              {contact.firstName && contact.lastName
+                ? `${contact.firstName} ${contact.lastName}`
+                : contact.company}
             </h1>
             <ContactStatusBadge status={contact.status} />
           </div>
@@ -319,14 +334,21 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
               </CardHeader>
               <CardContent>
                 <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="company">Entreprise</FieldLabel>
+                    <Input
+                      id="company"
+                      name="company"
+                      defaultValue={contact.company ?? ""}
+                    />
+                  </Field>
                   <div className="grid grid-cols-2 gap-4">
                     <Field>
                       <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
                       <Input
                         id="firstName"
                         name="firstName"
-                        defaultValue={contact.firstName}
-                        required
+                        defaultValue={contact.firstName ?? ""}
                       />
                     </Field>
                     <Field>
@@ -334,18 +356,18 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
                       <Input
                         id="lastName"
                         name="lastName"
-                        defaultValue={contact.lastName}
-                        required
+                        defaultValue={contact.lastName ?? ""}
                       />
                     </Field>
                   </div>
                   <Field>
-                    <FieldLabel htmlFor="email">E-mail</FieldLabel>
+                    <FieldLabel htmlFor="email">E-mail *</FieldLabel>
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       defaultValue={contact.email ?? ""}
+                      required
                     />
                   </Field>
                   <Field>
@@ -358,11 +380,11 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="company">Entreprise</FieldLabel>
+                    <FieldLabel htmlFor="address">Adresse</FieldLabel>
                     <Input
-                      id="company"
-                      name="company"
-                      defaultValue={contact.company ?? ""}
+                      id="address"
+                      name="address"
+                      defaultValue={contact.address ?? ""}
                     />
                   </Field>
                   <Field>
@@ -431,7 +453,9 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
                     <DialogDescription>
                       Êtes-vous sûr de vouloir supprimer{" "}
                       <span className="font-medium text-foreground">
-                        {contact.firstName} {contact.lastName}
+                        {contact.firstName && contact.lastName
+                          ? `${contact.firstName} ${contact.lastName}`
+                          : contact.company}
                       </span>{" "}
                       ? Cette action est irréversible et entraîne la perte de
                       toutes les données associées.

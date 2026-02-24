@@ -57,12 +57,12 @@ export function DataTable({ data }: DataTableProps) {
     onColumnFiltersChange: setColumnFilters,
     globalFilterFn: (row, _columnId, filterValue) => {
       const search = filterValue.toLowerCase()
-      const contact = row.original
+      const { firstName, lastName, email, company } = row.original
       return (
-        contact.firstName.toLowerCase().includes(search) ||
-        contact.lastName.toLowerCase().includes(search) ||
-        (contact.email?.toLowerCase().includes(search) ?? false) ||
-        (contact.company?.toLowerCase().includes(search) ?? false)
+        (firstName?.toLowerCase().includes(search) ?? false) ||
+        (lastName?.toLowerCase().includes(search) ?? false) ||
+        (email?.toLowerCase().includes(search) ?? false) ||
+        (company?.toLowerCase().includes(search) ?? false)
       )
     },
     state: {

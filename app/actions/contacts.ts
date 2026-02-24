@@ -6,6 +6,14 @@ import { auth } from "@/lib/auth"
 import prisma from "@/lib/prisma"
 import type { ContactStatus, ContactType } from "@/app/generated/prisma/enums"
 
+function revalidateContactPaths(id?: string) {
+  revalidatePath("/")
+  revalidatePath("/contacts")
+  revalidatePath("/contacts/companies")
+  revalidatePath("/contacts/individuals")
+  if (id) revalidatePath(`/contacts/${id}`)
+}
+
 function parseContactFields(formData: FormData) {
   const type = (formData.get("type") as ContactType) || "INDIVIDUAL"
   const firstName = (formData.get("firstName") as string) || null
@@ -54,8 +62,7 @@ export async function createContact(formData: FormData) {
     })
   })
 
-  revalidatePath("/")
-  revalidatePath("/contacts")
+  revalidateContactPaths()
 }
 
 export async function getRecentContacts() {
@@ -137,7 +144,7 @@ export async function loadMoreContactEvents(contactId: string, skip: number) {
   }
 }
 
-export async function getAllContacts() {
+export async function getAllContacts(type?: ContactType) {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -147,7 +154,7 @@ export async function getAllContacts() {
   }
 
   return prisma.contact.findMany({
-    where: { userId: session.user.id },
+    where: { userId: session.user.id, ...(type ? { type } : {}) },
     orderBy: { createdAt: "desc" },
   })
 }
@@ -188,9 +195,7 @@ export async function updateContact(id: string, formData: FormData) {
     }
   })
 
-  revalidatePath("/")
-  revalidatePath("/contacts")
-  revalidatePath(`/contacts/${id}`)
+  revalidateContactPaths(id)
 }
 
 export async function addContactNote(contactId: string, content: string) {
@@ -230,7 +235,5 @@ export async function deleteContact(id: string) {
 
   await prisma.contact.delete({ where: { id } })
 
-  revalidatePath("/")
-  revalidatePath("/contacts")
-  revalidatePath(`/contacts/${id}`)
+  revalidateContactPaths(id)
 }

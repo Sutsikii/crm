@@ -20,11 +20,15 @@ import { Input } from "@/components/ui/input"
 import { ContactTypeToggle, type ContactType } from "@/components/contact-type-toggle"
 import { UserPlus } from "lucide-react"
 
-export function CreateContactSheet() {
+interface CreateContactSheetProps {
+  defaultType?: ContactType
+}
+
+export function CreateContactSheet({ defaultType = "INDIVIDUAL" }: CreateContactSheetProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [contactType, setContactType] = useState<ContactType>("INDIVIDUAL")
+  const [contactType, setContactType] = useState<ContactType>(defaultType)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

@@ -40,11 +40,11 @@ const data = {
         },
         {
           title: "Entreprises",
-          url: "#",
+          url: "/contacts/companies",
         },
         {
           title: "Particuliers",
-          url: "#",
+          url: "/contacts/individuals",
         },
       ],
     },

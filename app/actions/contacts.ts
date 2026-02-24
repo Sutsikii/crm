@@ -4,9 +4,10 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import type { ContactStatus } from "@/app/generated/prisma/enums"
+import type { ContactStatus, ContactType } from "@/app/generated/prisma/enums"
 
 function parseContactFields(formData: FormData) {
+  const type = (formData.get("type") as ContactType) || "INDIVIDUAL"
   const firstName = (formData.get("firstName") as string) || null
   const lastName = (formData.get("lastName") as string) || null
   const email = (formData.get("email") as string) || null
@@ -14,15 +15,15 @@ function parseContactFields(formData: FormData) {
   const company = (formData.get("company") as string) || null
   const address = (formData.get("address") as string) || null
 
-  if (!email) {
-    throw new Error("L'e-mail est requis")
+  if (!email) throw new Error("L'e-mail est requis")
+
+  if (type === "INDIVIDUAL") {
+    if (!firstName || !lastName) throw new Error("Le prénom et le nom sont requis")
+    return { type, firstName, lastName, email, phone, company: null, address }
   }
 
-  if ((!firstName || !lastName) && !company) {
-    throw new Error("Veuillez renseigner un nom/prénom ou une entreprise")
-  }
-
-  return { firstName, lastName, email, phone, company, address }
+  if (!company) throw new Error("Le nom de l'entreprise est requis")
+  return { type, firstName, lastName, email, phone, company, address }
 }
 
 export async function createContact(formData: FormData) {

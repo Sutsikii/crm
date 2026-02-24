@@ -17,30 +17,21 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { ContactTypeToggle, type ContactType } from "@/components/contact-type-toggle"
 import { UserPlus } from "lucide-react"
 
 export function CreateContactSheet() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [contactType, setContactType] = useState<ContactType>("INDIVIDUAL")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError("")
-
-    const formData = new FormData(e.currentTarget)
-    const firstName = (formData.get("firstName") as string).trim()
-    const lastName = (formData.get("lastName") as string).trim()
-    const company = (formData.get("company") as string).trim()
-
-    if ((!firstName || !lastName) && !company) {
-      setError("Renseignez un prénom/nom ou une entreprise")
-      return
-    }
-
     setLoading(true)
     try {
-      await createContact(formData)
+      await createContact(new FormData(e.currentTarget))
       setOpen(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue")
@@ -65,21 +56,40 @@ export function CreateContactSheet() {
           </SheetDescription>
         </SheetHeader>
         <form onSubmit={handleSubmit} className="px-4 space-y-6">
+          <input type="hidden" name="type" value={contactType} />
+
+          <ContactTypeToggle value={contactType} onChange={setContactType} />
+
           <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="company">Entreprise</FieldLabel>
-              <Input id="company" name="company" />
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field>
-                <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
-                <Input id="firstName" name="firstName" />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="lastName">Nom</FieldLabel>
-                <Input id="lastName" name="lastName" />
-              </Field>
-            </div>
+            {contactType === "INDIVIDUAL" ? (
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
+                  <Input id="firstName" name="firstName" required />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="lastName">Nom</FieldLabel>
+                  <Input id="lastName" name="lastName" required />
+                </Field>
+              </div>
+            ) : (
+              <>
+                <Field>
+                  <FieldLabel htmlFor="company">Entreprise</FieldLabel>
+                  <Input id="company" name="company" required />
+                </Field>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
+                    <Input id="firstName" name="firstName" />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="lastName">Nom</FieldLabel>
+                    <Input id="lastName" name="lastName" />
+                  </Field>
+                </div>
+              </>
+            )}
             <Field>
               <FieldLabel htmlFor="email">E-mail *</FieldLabel>
               <Input id="email" name="email" type="email" required />
@@ -93,6 +103,7 @@ export function CreateContactSheet() {
               <Input id="address" name="address" />
             </Field>
           </FieldGroup>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Création..." : "Créer le contact"}

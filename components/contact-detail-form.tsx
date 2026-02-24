@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { updateContact, deleteContact, addContactNote, loadMoreContactEvents } from "@/app/actions/contacts"
+import { ContactTypeToggle, type ContactType } from "@/components/contact-type-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -60,6 +61,7 @@ interface ContactEvent {
 
 interface Contact {
   id: string
+  type: ContactType
   firstName: string | null
   lastName: string | null
   email: string | null
@@ -184,6 +186,7 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [noteContent, setNoteContent] = useState("")
   const [addingNote, setAddingNote] = useState(false)
+  const [contactType, setContactType] = useState<ContactType>(contact.type)
 
   const [events, setEvents] = useState(contact.events)
   const [hasMore, setHasMore] = useState(contact.hasMoreEvents)
@@ -201,20 +204,9 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
     e.preventDefault()
     setError("")
     setSuccess(false)
-
-    const formData = new FormData(e.currentTarget)
-    const firstName = (formData.get("firstName") as string).trim()
-    const lastName = (formData.get("lastName") as string).trim()
-    const company = (formData.get("company") as string).trim()
-
-    if ((!firstName || !lastName) && !company) {
-      setError("Renseignez un prénom/nom ou une entreprise")
-      return
-    }
-
     setLoading(true)
     try {
-      await updateContact(contact.id, formData)
+      await updateContact(contact.id, new FormData(e.currentTarget))
       setSuccess(true)
       router.refresh()
     } catch (err) {
@@ -334,32 +326,63 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
               </CardHeader>
               <CardContent>
                 <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="company">Entreprise</FieldLabel>
-                    <Input
-                      id="company"
-                      name="company"
-                      defaultValue={contact.company ?? ""}
-                    />
-                  </Field>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field>
-                      <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        defaultValue={contact.firstName ?? ""}
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="lastName">Nom</FieldLabel>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        defaultValue={contact.lastName ?? ""}
-                      />
-                    </Field>
-                  </div>
+                  <input type="hidden" name="type" value={contactType} />
+
+                  <ContactTypeToggle value={contactType} onChange={setContactType} />
+
+                  {contactType === "INDIVIDUAL" ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <Field>
+                        <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          defaultValue={contact.firstName ?? ""}
+                          required
+                        />
+                      </Field>
+                      <Field>
+                        <FieldLabel htmlFor="lastName">Nom</FieldLabel>
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          defaultValue={contact.lastName ?? ""}
+                          required
+                        />
+                      </Field>
+                    </div>
+                  ) : (
+                    <>
+                      <Field>
+                        <FieldLabel htmlFor="company">Entreprise</FieldLabel>
+                        <Input
+                          id="company"
+                          name="company"
+                          defaultValue={contact.company ?? ""}
+                          required
+                        />
+                      </Field>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Field>
+                          <FieldLabel htmlFor="firstName">Prénom</FieldLabel>
+                          <Input
+                            id="firstName"
+                            name="firstName"
+                            defaultValue={contact.firstName ?? ""}
+                          />
+                        </Field>
+                        <Field>
+                          <FieldLabel htmlFor="lastName">Nom</FieldLabel>
+                          <Input
+                            id="lastName"
+                            name="lastName"
+                            defaultValue={contact.lastName ?? ""}
+                          />
+                        </Field>
+                      </div>
+                    </>
+                  )}
+
                   <Field>
                     <FieldLabel htmlFor="email">E-mail *</FieldLabel>
                     <Input

@@ -35,8 +35,16 @@ enum ContactStatus {
   @@map("contact_status")
 }
 
+enum ContactType {
+  INDIVIDUAL
+  COMPANY
+
+  @@map("contact_type")
+}
+
 model Contact {
   id        String        @id @default(cuid())
+  type      ContactType   @default(INDIVIDUAL)
   firstName String?
   lastName  String?
   email     String?

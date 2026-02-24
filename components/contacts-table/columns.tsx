@@ -8,6 +8,7 @@ import { ContactStatusBadge } from "@/components/contact-status-badge"
 
 export type Contact = {
   id: string
+  type: string
   firstName: string | null
   lastName: string | null
   email: string | null

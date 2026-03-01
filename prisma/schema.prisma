@@ -16,12 +16,13 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  sessions       Session[]
-  accounts       Account[]
-  contacts       Contact[]
-  tasks          Task[]
-  invoices       Invoice[]
-  contactEvents  ContactEvent[]
+  sessions         Session[]
+  accounts         Account[]
+  contacts         Contact[]
+  tasks            Task[]
+  invoices         Invoice[]
+  contactEvents    ContactEvent[]
+  contactDocuments ContactDocument[]
 
   @@map("user")
 }
@@ -57,10 +58,11 @@ model Contact {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tasks    Task[]
-  invoices Invoice[]
-  events   ContactEvent[]
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  invoices  Invoice[]
+  events    ContactEvent[]
+  documents ContactDocument[]
 
   @@index([userId])
   @@map("contact")
@@ -89,6 +91,23 @@ model ContactEvent {
 
   @@index([contactId])
   @@map("contact_event")
+}
+
+model ContactDocument {
+  id          String   @id @default(cuid())
+  name        String
+  key         String
+  size        Int
+  contentType String
+  contactId   String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@map("contact_document")
 }
 
 enum TaskStatus {

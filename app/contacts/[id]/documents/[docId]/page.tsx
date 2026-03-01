@@ -14,35 +14,29 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { getContactById } from "@/app/actions/contacts"
-import { getContactDocuments } from "@/app/actions/documents"
-import { ContactDetailForm } from "@/components/contact-detail-form"
+import { getDocumentForViewer } from "@/app/actions/documents"
 
-interface ContactPageProps {
-  params: Promise<{ id: string }>
+interface DocumentPageProps {
+  params: Promise<{ id: string; docId: string }>
 }
 
-export default async function ContactPage({ params }: ContactPageProps) {
-  const { id } = await params
-  const [contact, documents] = await Promise.all([
-    getContactById(id),
-    getContactDocuments(id),
-  ])
+export default async function DocumentPage({ params }: DocumentPageProps) {
+  const { docId } = await params
+  const doc = await getDocumentForViewer(docId)
 
-  if (!contact) {
+  if (!doc) {
     notFound()
   }
 
-  const serialized = {
-    ...contact,
-    createdAt: contact.createdAt.toISOString(),
-    updatedAt: contact.updatedAt.toISOString(),
-  }
+  const contactName =
+    doc.contact.firstName && doc.contact.lastName
+      ? `${doc.contact.firstName} ${doc.contact.lastName}`
+      : doc.contact.company ?? "Contact"
 
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="flex flex-col">
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -61,16 +55,38 @@ export default async function ContactPage({ params }: ContactPageProps) {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    {contact.firstName} {contact.lastName}
+                  <BreadcrumbLink href={`/contacts/${doc.contact.id}`}>
+                    {contactName}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="max-w-[200px] truncate">
+                    {doc.name}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <ContactDetailForm contact={serialized} initialDocuments={documents} />
+
+        <div className="flex-1 min-h-0">
+          {doc.contentType.startsWith("image/") ? (
+            <div className="flex h-full items-center justify-center bg-muted/30 p-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={doc.url}
+                alt={doc.name}
+                className="max-h-full max-w-full object-contain rounded"
+              />
+            </div>
+          ) : (
+            <iframe
+              src={doc.url}
+              className="h-full w-full"
+              title={doc.name}
+            />
+          )}
         </div>
       </SidebarInset>
     </SidebarProvider>

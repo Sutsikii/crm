@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { updateContact, deleteContact, addContactNote, loadMoreContactEvents } from "@/app/actions/contacts"
+import { ContactDocuments } from "@/components/contact-documents"
+import type { DocumentItem } from "@/app/actions/documents"
 import { ContactTypeToggle, type ContactType } from "@/components/contact-type-toggle"
 import { Button } from "@/components/ui/button"
 import {
@@ -177,7 +179,13 @@ function TimelineItem({
   )
 }
 
-export function ContactDetailForm({ contact }: { contact: Contact }) {
+export function ContactDetailForm({
+  contact,
+  initialDocuments,
+}: {
+  contact: Contact
+  initialDocuments: DocumentItem[]
+}) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -510,6 +518,8 @@ export function ContactDetailForm({ contact }: { contact: Contact }) {
         </div>
 
         <div className="lg:col-span-3 space-y-5">
+          <ContactDocuments contactId={contact.id} initialDocuments={initialDocuments} />
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Activité</CardTitle>

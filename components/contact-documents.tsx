@@ -35,7 +35,7 @@ export function ContactDocuments({
 }) {
   const [documents, setDocuments] = useState<DocumentItem[]>(initialDocuments)
   const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState("")
+  const [error, setError] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -43,44 +43,38 @@ export function ContactDocuments({
     const file = e.target.files?.[0]
     if (!file) return
 
-    setUploadError("")
+    setError("")
     setUploading(true)
-    try {
-      const body = new FormData()
-      body.append("file", file)
 
-      const res = await fetch(`/api/contacts/${contactId}/documents`, {
-        method: "POST",
-        body,
-      })
+    const body = new FormData()
+    body.append("file", file)
 
-      const data = await res.json()
+    const res = await fetch(`/api/contacts/${contactId}/documents`, { method: "POST", body }).catch(() => null)
+    const data = await res?.json().catch(() => null) ?? null
 
-      if (!res.ok) {
-        setUploadError(data.error ?? "Erreur lors de l'upload")
-        return
-      }
-
+    if (!res?.ok) {
+      setError(data?.error ?? "Erreur lors de l'upload")
+    } else {
       setDocuments((prev) => [data, ...prev])
-    } catch {
-      setUploadError("Erreur lors de l'upload")
-    } finally {
-      setUploading(false)
-      if (inputRef.current) inputRef.current.value = ""
     }
+
+    setUploading(false)
+    if (inputRef.current) inputRef.current.value = ""
   }
 
   async function handleDelete(e: React.MouseEvent, id: string) {
     e.preventDefault()
     setDeletingId(id)
-    try {
-      await deleteContactDocument(id)
+
+    const ok = await deleteContactDocument(id).then(() => true).catch(() => false)
+
+    if (ok) {
       setDocuments((prev) => prev.filter((d) => d.id !== id))
-    } catch {
-      setUploadError("Erreur lors de la suppression")
-    } finally {
-      setDeletingId(null)
+    } else {
+      setError("Erreur lors de la suppression")
     }
+
+    setDeletingId(null)
   }
 
   return (
@@ -112,8 +106,8 @@ export function ContactDocuments({
         </div>
       </CardHeader>
       <CardContent>
-        {uploadError && (
-          <p className="mb-3 text-xs text-destructive">{uploadError}</p>
+        {error && (
+          <p className="mb-3 text-xs text-destructive">{error}</p>
         )}
 
         {documents.length === 0 ? (

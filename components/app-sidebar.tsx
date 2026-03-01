@@ -8,6 +8,7 @@ import {
   HandCoins,
   Kanban,
   LayoutDashboard,
+  Package,
   Settings2,
   Users,
 } from "lucide-react"
@@ -64,6 +65,17 @@ const data = {
         {
           title: "Opportunités",
           url: "#",
+        },
+      ],
+    },
+    {
+      title: "Catalogue",
+      url: "/catalog",
+      icon: Package,
+      items: [
+        {
+          title: "Produits & services",
+          url: "/catalog",
         },
       ],
     },

@@ -23,6 +23,7 @@ model User {
   invoices         Invoice[]
   contactEvents    ContactEvent[]
   contactDocuments ContactDocument[]
+  products         Product[]
 
   @@map("user")
 }
@@ -165,6 +166,49 @@ model Invoice {
   @@index([contactId])
   @@index([userId])
   @@map("invoice")
+}
+
+enum BillingType {
+  ONE_TIME
+  RECURRING
+
+  @@map("billing_type")
+}
+
+enum RecurringInterval {
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+
+  @@map("recurring_interval")
+}
+
+enum DepositType {
+  FIXED
+  PERCENTAGE
+
+  @@map("deposit_type")
+}
+
+model Product {
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  price             Decimal            @db.Decimal(10, 2)
+  billingType       BillingType        @default(ONE_TIME)
+  recurringInterval RecurringInterval?
+  depositEnabled    Boolean            @default(false)
+  depositType       DepositType?
+  depositValue      Decimal?           @db.Decimal(10, 2)
+  userId            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("product")
 }
 
 model Session {

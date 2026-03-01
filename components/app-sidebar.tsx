@@ -5,8 +5,6 @@ import {
   CalendarDays,
   ChartBar,
   Command,
-  HandCoins,
-  Kanban,
   LayoutDashboard,
   Package,
   Settings2,
@@ -50,25 +48,6 @@ const data = {
       ],
     },
     {
-      title: "Pipeline",
-      url: "#",
-      icon: Kanban,
-      items: [
-        {
-          title: "Vue Kanban",
-          url: "#",
-        },
-        {
-          title: "Liste",
-          url: "#",
-        },
-        {
-          title: "Opportunités",
-          url: "#",
-        },
-      ],
-    },
-    {
       title: "Catalogue",
       url: "/catalog",
       icon: Package,
@@ -76,25 +55,6 @@ const data = {
         {
           title: "Produits & services",
           url: "/catalog",
-        },
-      ],
-    },
-    {
-      title: "Ventes",
-      url: "#",
-      icon: HandCoins,
-      items: [
-        {
-          title: "Devis",
-          url: "#",
-        },
-        {
-          title: "Factures",
-          url: "#",
-        },
-        {
-          title: "Paiements",
-          url: "#",
         },
       ],
     },
